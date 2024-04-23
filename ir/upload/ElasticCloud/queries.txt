@@ -1,0 +1,32 @@
+GET /ir_project/_search?pretty
+{
+  "query": {
+    "match_phrase": {
+      "content": {
+        "query": "homework",
+        "slop": 0
+      }
+    }
+  }
+}
+
+POST /ir_project/_delete_by_query
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+GET /ir_project/_search?pretty
+{
+  "query": {
+    "match_phrase": {
+      "content": {
+        "query": "i",
+        "slop": 10
+      }
+    }
+  }
+}
+
+GET /ir_project/_search?pretty
