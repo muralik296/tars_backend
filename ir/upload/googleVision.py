@@ -5,7 +5,7 @@ import io
 from google.cloud import vision
 
 # the json file containing api credentials to talk to google vision api
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/Users/maneendra/Desktop/ir/ir/upload/ir-project-420808-5a9ad7d9afd2.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/Users/maneendra/Desktop/ir/ir/upload/secrets.json'
 
 
 def fetchImageData(imagePath):
