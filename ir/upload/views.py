@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import uuid
-import datetime;
+import datetime
 
 # used to determine file extensions
 from . import utils
@@ -15,6 +15,9 @@ from . import googleVision
 
 from .ElasticCloud import elasticCloud
 
+
+# import the creating positional index
+from .createPostingsList import createPostingList
 
 client = elasticCloud.client
 index = 'ir_project'
@@ -77,25 +80,78 @@ def uploadHandler(request):
                     file = open(absolute_path, "r")
                     text = file.read()
 
+                else:
+                    pass
+
                 # TO DO: To build a positional index on unprocessed text
                 # this way we get the exact position of these terms from the unprocessed text
 
                 # processed text after getting text from the handler
                 processedText = textProcessor.processText(text)
 
+                # generate document id
+                documentid = str(uuid.uuid4())
+
                 print(processedText)
 
-                # here we store the below format in elastic search cluster (data ingestion)
-                # documentid, file_name, file_location, content(processed text), positional indices of each term,type
+                # create or update a posting list
+                # first search if posting list exists
+                positionalIndexResult = client.search(
+                    index='pos_index',
+                    query={
+                        'match': {'id': {
+                            'query': 1
+                        }}
+                    })
+
+                oldPostingListResults = positionalIndexResult['hits']['hits']
+
+                # checking to see if positional index exists
+                if (len(oldPostingListResults) == 0):
+                    # if the positional index is not there, create one
+                    print('not exists')
+                    # create the positional index
+                    postingList = createPostingList(processedText, documentid)
+                    # save the positional index
+                    response = client.index(
+                        index='pos_index',
+                        document={
+                            'id': 1,
+                            'positional_index': postingList
+                        })
+
+                    print(response, '= from elastic cloud')
+                else:
+                    print('exists')
+                    print(positionalIndexResult,
+                          '= raw results from elastic cloud')
+
+                    # use this to update with new positional index
+                    # gives the stored id of positional index
+                    id = oldPostingListResults[0]['_id']
+                    oldPostingList = oldPostingListResults[0]['_source']['positional_index']
+
+                    newPostingList = createPostingList(
+                        processedText, documentid, oldPostingList)
+                    print(newPostingList)
+
+                    doc = {
+                        'positional_index': newPostingList
+                    }
+
+                    res = client.update(index="pos_index",
+                                        id=id, body={'doc': doc})
+
+                    print(res['result'])
+
                 res = client.index(
                     index=index,
                     document={
-                        'documentid': uuid.uuid4(),
+                        'documentid': documentid,
                         'file_name': file_name,
                         'file_loc': relative_path,
                         'content': processedText,
                         'type': 'image' if typeOfFile in ['png', 'jpg', 'jpeg'] else typeOfFile,
-                        # 'position_index': position_index,
                         'created_at': datetime.datetime.now().isoformat()
                     })
                 print(res, '= from insertion')
