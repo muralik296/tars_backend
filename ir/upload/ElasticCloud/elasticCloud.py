@@ -17,24 +17,35 @@ client = Elasticsearch(
 # mapping = {
 #     'properties': {
 #         'id': {'type': 'text'},
-#         'position_index': {'type': 'object'}
+#         'positional_index': {'type': 'object', 'enabled': 'false'}
 #     }
 # }
 
-# index_name = 'pos_index'
+# mapping = {
+#     'properties': {
+#         'content': {'type': 'text'},
+#         'created_at': {'type': 'date'},
+#         'documentid': {'type': 'text'},
+#         'file_loc': {'type': 'text'},
+#         'file_name': {'type': 'text'},
+#         'type': {'type': 'text'}
+#     }
+# }
+
+# index_name = 'positional_index'
 
 
 # client.indices.create(index=index_name, body={'mappings': mapping})
 
 
 # testing SOMETHING HERE
-result = client.search(
-    index='pos_index',
-    query={
-        'match': {'id': {
-            'query': 1
-        }}
-    })
+# result = client.search(
+#     index='pos_index',
+#     query={
+#         'match': {'id': {
+#             'query': 1
+#         }}
+#     })
 
-print(result)
-print(result['hits']['hits'])
+# print(result)
+# print(result['hits']['hits'])

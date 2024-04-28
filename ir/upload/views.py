@@ -7,32 +7,25 @@ import uuid
 import datetime
 
 # used to determine file extensions
-from . import utils
-
-from . import textProcessor
-
-from . import googleVision
-
+from . import handlers
+from .processor import processText
 from .ElasticCloud import elasticCloud
-
+from . import helpers
 
 # import the creating positional index
 from .createPostingsList import createPostingList
 
-client = elasticCloud.client
-index = 'ir_project'
+
+# elastic cloud helpers
+from .ElasticCloud import main
+from .ElasticCloud import positional_index
 
 
-print(client.info())
-
-
+# upload endpoint
 @csrf_exempt
 def uploadHandler(request):
-    if (request.method == 'GET'):
-        return JsonResponse({
-            'msg': 'upload'
-        })
-    elif (request.method == 'POST'):
+
+    if (request.method == 'POST'):
         print('Post requst')
 
         # check if the request body to the uplaod handler are files =>
@@ -57,7 +50,8 @@ def uploadHandler(request):
                 relative_path = f'/media/{saved_path}'
                 absolute_path = default_storage.path(saved_path)
 
-                fileExtension = utils.getFileExtension(absolute_path)
+                fileExtension = helpers.getFileExtension(absolute_path)
+                print(fileExtension)
                 print(file_name, '= name of file')
                 print(absolute_path, '= absolute path of the file')
                 print(relative_path, '= relative path of file')
@@ -69,40 +63,54 @@ def uploadHandler(request):
                 # pdf handler
                 if (typeOfFile == 'pdf'):
                     # call the pdf handler function to get the text from the pdf
-                    text = utils.getTextFromPDF(absolute_path)
+                    text = handlers.getTextFromPDF(absolute_path)
 
                 # image handler
                 elif (typeOfFile in ['png', 'jpg', 'jpeg']):
-                    text = googleVision.fetchImageData(absolute_path)
+                    text = handlers.getTextFromImage(absolute_path)
 
                 # text handler
                 elif (typeOfFile == 'plain'):
-                    file = open(absolute_path, "r")
-                    text = file.read()
+                    text = handlers.getTextFromTextFile(absolute_path)
+
+                # .docx file handler
+                elif ('wordprocessingml' in typeOfFile):
+                    text = handlers.getTextFromWordDocument(absolute_path)
+
+                elif (typeOfFile == 'html'):
+                    text = handlers.getTextFromHtmlFile(absolute_path)
 
                 else:
+                    # TO DO : Throw error non supported file
                     pass
 
-                # TO DO: To build a positional index on unprocessed text
-                # this way we get the exact position of these terms from the unprocessed text
-
                 # processed text after getting text from the handler
-                processedText = textProcessor.processText(text)
+                processedText = processText(text)
 
                 # generate document id
                 documentid = str(uuid.uuid4())
 
                 print(processedText)
 
-                # create or update a posting list
-                # first search if posting list exists
-                positionalIndexResult = client.search(
-                    index='pos_index',
-                    query={
-                        'match': {'id': {
-                            'query': 1
-                        }}
-                    })
+                document = {
+                    'documentid': documentid,
+                    'file_name': file_name,
+                    'file_loc': relative_path,
+                    'content': processedText,
+                    'type': 'image' if typeOfFile in ['png', 'jpg', 'jpeg'] else typeOfFile,
+                    'created_at': datetime.datetime.now().isoformat()
+                }
+
+                # insert each document into the main table
+                res = main.insert_into_main(document)
+                print(res, '= from insertion')
+
+                # Now once we have the document in our main table, we need to create a positional index or update existing positional index 
+
+                # seeing if positional index already exists by fetching 
+                positionalIndexResult = positional_index.get_positional_index()
+
+                print(positionalIndexResult)
 
                 oldPostingListResults = positionalIndexResult['hits']['hits']
 
@@ -111,54 +119,45 @@ def uploadHandler(request):
                     # if the positional index is not there, create one
                     print('not exists')
                     # create the positional index
-                    postingList = createPostingList(processedText, documentid)
+                    posting_list = createPostingList(processedText, documentid)
+                    print(posting_list, '= posting list')
                     # save the positional index
-                    response = client.index(
-                        index='pos_index',
-                        document={
-                            'id': 1,
-                            'positional_index': postingList
-                        })
+                    res = positional_index.insert_into_positional_index_index(
+                        posting_list)
 
-                    print(response, '= from elastic cloud')
+                    print(res, '= from elastic cloud')
+
                 else:
+                    # TO DO: Create a posting list for all existing documents and merge into the old one
+                    # Right now inefficiently making read/write from the elastic cloud db
+
                     print('exists')
+
                     print(positionalIndexResult,
-                          '= raw results from elastic cloud')
+                        '= raw results from elastic cloud')
 
                     # use this to update with new positional index
                     # gives the stored id of positional index
                     id = oldPostingListResults[0]['_id']
                     oldPostingList = oldPostingListResults[0]['_source']['positional_index']
 
+                    # create new posting list from the existing posting list
                     newPostingList = createPostingList(
                         processedText, documentid, oldPostingList)
+
                     print(newPostingList)
 
                     doc = {
                         'positional_index': newPostingList
                     }
 
-                    res = client.update(index="pos_index",
-                                        id=id, body={'doc': doc})
+                    # update the posting list
+                    res = positional_index.update_positional_index(id, doc)
 
-                    print(res['result'])
-
-                res = client.index(
-                    index=index,
-                    document={
-                        'documentid': documentid,
-                        'file_name': file_name,
-                        'file_loc': relative_path,
-                        'content': processedText,
-                        'type': 'image' if typeOfFile in ['png', 'jpg', 'jpeg'] else typeOfFile,
-                        'created_at': datetime.datetime.now().isoformat()
-                    })
-                print(res, '= from insertion')
-                client.indices.refresh(index=index)
-        elif (request.POST['urls']):
-            # TO DO support for urls and scrape data
-            pass
+        # # URL Handler
+        # elif (request.POST['urls']):
+        #     # TO DO support for urls and scrape data
+        #     pass
 
         return JsonResponse({
             'msg': 'success'
