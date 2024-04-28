@@ -16,7 +16,6 @@ client = Elasticsearch(
 
 # mapping = {
 #     'properties': {
-#         'id': {'type': 'text'},
 #         'positional_index': {'type': 'object', 'enabled': 'false'}
 #     }
 # }
