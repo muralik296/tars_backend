@@ -1,12 +1,12 @@
 def return_docs(posting_list,phrase_query):
+    # reducing the term_index to only the terms that are necassary from the phrase query
     tokens_in_phrase = phrase_query.split(' ')
-    # Initialize the list of document IDs containing the first word
     if tokens_in_phrase[0] in posting_list:
         common_documents = posting_list[tokens_in_phrase[0]]
     else:
         common_documents = {}
 
-    # Find common documents for all terms, focusing on documents first
+    # finding intersection of the documents with the same term occuring
     for term in tokens_in_phrase[1:]:
         if term in posting_list:
             term_documents = posting_list[term]
@@ -16,7 +16,7 @@ def return_docs(posting_list,phrase_query):
             common_documents = {}
             break
 
-    # Now extract positions for these common documents
+    # giving positions of these terms in these documents
     document_positions = {}
     for doc in common_documents:
         document_positions[doc] = [posting_list[term][doc]
@@ -24,7 +24,7 @@ def return_docs(posting_list,phrase_query):
 
     print("Documents and their term positions:", document_positions)
 
-    # checking if their positions are next to each other.
+    # checking if their positions are next to each other
     final_documents = {}
 
     for key,array in document_positions.items():
