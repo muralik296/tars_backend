@@ -6,7 +6,7 @@ def createPostingList(text, document_index, term_index={}):
     """ Takes the content and document id and creates a positional index """
     splittedText = text.split(" ")
     for index, term in enumerate(splittedText):
-        print(term, index)
+        # print(term, index)
 
         # for each term we are trying to check if the term is present in the term_index dictionary, otherwise we are
         # creating a blank dictionary for the term.
@@ -33,3 +33,13 @@ def createPostingList(text, document_index, term_index={}):
 # newText = 'i am the world babe where are you'
 # newPostingList = createPostingList(newText, 2, oldPostingList)
 # print(newPostingList)
+def merge_posting_lists(old_list, new_list):
+    # Iterate over each term and the corresponding docs in the new posting list
+    for term, new_docs in new_list.items():
+        if term in old_list:
+            # If the term is already in the old list, just update with new docs
+            old_list[term].update(new_docs)
+        else:
+            # If the term is not in the old list, add it along with its documents
+            old_list[term] = new_docs
+    return old_list
