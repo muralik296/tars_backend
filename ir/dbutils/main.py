@@ -1,5 +1,8 @@
-from .elasticCloud import client
+from .client import client
 from elasticsearch.helpers import bulk
+
+
+'''File contains helper functions for the main index'''
 
 index = 'main'
 

@@ -2,14 +2,13 @@ from django.http import JsonResponse
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
+# from django.core.files.base import ContentFile
 import uuid
 import datetime
 
 # used to determine file extensions
 from . import handlers
 from .processor import processText
-from .ElasticCloud import elasticCloud
 from . import helpers
 
 # import the creating positional index
@@ -17,9 +16,8 @@ from .createPostingsList import createPostingList, merge_posting_lists
 
 
 # elastic cloud helpers
-from .ElasticCloud import main
-from .ElasticCloud import positional_index
-from elasticsearch import Elasticsearch
+from dbutils import main
+from dbutils import positional_index
 from elasticsearch.exceptions import NotFoundError, ConnectionError, TransportError
 import json
 

@@ -1,10 +1,8 @@
 # this file has all operations related to index 'positional_index'
 
-from .elasticCloud import client
+from .client import client
 
 index = 'positional_index'
-
-# helper to check if the positional index is stored in the database
 
 
 def get_positional_index():
@@ -35,7 +33,7 @@ def update_positional_index(doc):
     )
     return response
 
-
+# helper to check if the positional index is stored in the database
 def check_document_exists():
     '''Checks if document with id 1 exists '''
     try:

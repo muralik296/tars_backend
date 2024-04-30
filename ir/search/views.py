@@ -9,9 +9,9 @@ import json
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError, ConnectionError, TransportError
 
-from upload.ElasticCloud.positional_index import get_positional_index, check_document_exists
+from dbutils import positional_index
 
-from upload.ElasticCloud import main
+from dbutils import main
 
 from .search_algo import return_docs
 
@@ -32,7 +32,7 @@ def searchHandler(request):
             print(search_queries, 'search queries')
 
             # checking if positional index exists, if not then return an empty search result
-            if (check_document_exists() == False):
+            if (positional_index.check_document_exists() == False):
                 return JsonResponse({
                     'data': []
                 }, status=201)
@@ -40,7 +40,7 @@ def searchHandler(request):
             document_ids = []
             for search_query in search_queries:
 
-                result_from_elastic_search = get_positional_index()
+                result_from_elastic_search = positional_index.get_positional_index()
                 pos_index = result_from_elastic_search['_source']['positional_index']
 
                 result = return_docs(pos_index, search_query)
@@ -95,7 +95,7 @@ def get_posting_list_for_phrase(request):
         requestBody = json.loads(request.body)
         search_query = requestBody['query']
         print(search_query, '= search query')
-        positional_index = get_positional_index()
+        positional_index = positional_index.get_positional_index()
         pos_index = positional_index['hits']['hits'][0]['_source']['positional_index']
         print(pos_index, '=res')
 

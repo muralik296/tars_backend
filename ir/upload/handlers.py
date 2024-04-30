@@ -21,7 +21,6 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = f'{path_to_dir}/secrets.json'
 from urllib.request import urlopen
 
 # TXT file handler
-
 def getTextFromTextFile(file_path):
     ''' Returns text from text file, takes absolute path of file as argument '''
     file = open(file_path, "r")

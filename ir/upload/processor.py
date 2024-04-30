@@ -22,7 +22,7 @@ def processText(unProcessedText):
     clean_text = clean_text.strip()
 
     # remove stop words
-    # clean_text = remove_stop_words(clean_text) # NO REMOVAL OF STOP WORDS
+    clean_text = remove_stop_words(clean_text) # NO REMOVAL OF STOP WORDS
     return clean_text
 
 
