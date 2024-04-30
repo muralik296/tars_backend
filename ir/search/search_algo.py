@@ -38,5 +38,4 @@ def return_docs(posting_list,phrase_query):
         if (is_sequential == True):
             final_documents[key] = array
 
-    print(final_documents)
     return final_documents
