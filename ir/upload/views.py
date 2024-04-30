@@ -28,18 +28,12 @@ import json
 @csrf_exempt
 def uploadHandler(request):
     try:
+        current_term_index = {}
+        documents = []
+
         if (request.method == 'POST'):
-            print('Post requst')
-
-            # check if the request body to the uplaod handler are files =>
-            # if files we are going to handle files in the below manner
-
-            # if the request contains files, then we are going to check for the file type
-            # based on the extension.
-
-            # if the extension is pdf => we would use extract pdf to get the text out of it.
-            current_term_index = {}
-            documents = []
+            
+            # FILE HANDLER
             if (request.FILES):
                 print(request.FILES)
                 uploaded_files = request.FILES.getlist('files')
@@ -121,46 +115,6 @@ def uploadHandler(request):
                     }
                     documents.append(document)
 
-                print(current_term_index,
-                      '= current term index from the uploaded docs')
-
-                # seeing if positional index already exists by fetching
-                isPositionalIndexExist = positional_index.check_document_exists()
-
-                print(isPositionalIndexExist)
-
-                # create new term index if not there
-                if (isPositionalIndexExist == False):
-                    print('--- Term Index NOT EXISTS ----')
-                    # save the current term index
-                    res = positional_index.insert_into_positional_index_index(
-                        current_term_index)
-
-                # update existing term index with current documents information
-                else:
-                    print('--- Term Index exists ----')
-                    old_term_index = positional_index.get_positional_index()
-
-                    old_term_index = old_term_index['_source']['positional_index']
-                    print(old_term_index, '= old term index')
-
-                    # create new posting list from the existing posting list
-                    new_term_index = merge_posting_lists(
-                        old_term_index, current_term_index)
-
-                    print(new_term_index)
-
-                    doc = {
-                        'positional_index': new_term_index
-                    }
-
-                    # update the posting list
-                    update_term_index = positional_index.update_positional_index(
-                        doc)
-
-                # finally lets also store these uploaded documents information to the main index
-                insertion_documents = main.bulk_insert(documents)
-
             # URL Handler
             else:
                 current_term_index = {}
@@ -202,43 +156,48 @@ def uploadHandler(request):
                     }
 
                     documents.append(document)
-                    
-                print(current_term_index, '= current term index from the uploaded docs')
-                
-                isPositionalIndexExist = positional_index.check_document_exists()
 
-                print(isPositionalIndexExist)
+            
+            print(current_term_index,
+                    '= current term index from the uploaded docs')
 
-                # checking to see if positional index exists
-                if (isPositionalIndexExist == False):
-                    print('--- Term Index NOT EXISTS ----')
-                    # save the current term index
-                    res = positional_index.insert_into_positional_index_index(current_term_index)
+            # seeing if positional index already exists by fetching
+            isPositionalIndexExist = positional_index.check_document_exists()
 
-                else:
-                    print('--- Term Index exists ----')
-                    old_term_index = positional_index.get_positional_index()
+            print(isPositionalIndexExist)
 
-                    old_term_index = old_term_index['_source']['positional_index']
-                    print(old_term_index, '= old term index')
+            # create new term index if not there
+            if (isPositionalIndexExist == False):
+                print('--- Term Index NOT EXISTS ----')
+                # save the current term index
+                res = positional_index.insert_into_positional_index_index(
+                    current_term_index)
 
-                    # create new posting list from the existing posting list
-                    new_term_index = merge_posting_lists(
-                        old_term_index, current_term_index)
+            # update existing term index with current documents information
+            else:
+                print('--- Term Index exists ----')
+                old_term_index = positional_index.get_positional_index()
 
-                    print(new_term_index)
+                old_term_index = old_term_index['_source']['positional_index']
+                print(old_term_index, '= old term index')
 
-                    doc = {
-                        'positional_index': new_term_index
-                    }
+                # create new posting list from the existing posting list
+                new_term_index = merge_posting_lists(
+                    old_term_index, current_term_index)
 
-                    # update the posting list
-                    update_term_index = positional_index.update_positional_index(
-                        doc)
+                print(new_term_index)
 
-                # finally lets also store these uploaded documents information to the main index
-                insertion_documents = main.bulk_insert(documents)
+                doc = {
+                    'positional_index': new_term_index
+                }
 
+                # update the posting list
+                update_term_index = positional_index.update_positional_index(
+                    doc)
+
+            # finally lets also store these uploaded documents information to the main index
+            insertion_documents = main.bulk_insert(documents)
+            
             return JsonResponse({
                 'msg': 'success'
             }, status=201)
