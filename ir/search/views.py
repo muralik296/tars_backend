@@ -26,28 +26,36 @@ def searchHandler(request):
             search_query = requestBody['query']
             search_query = search_query.lower()
             print(search_query, '= search query')
-            
+
+            search_queries = search_query.split(
+                ',')  # support for free queries
+            print(search_queries, 'search queries')
+
             # checking if positional index exists, if not then return an empty search result
             if (check_document_exists() == False):
                 return JsonResponse({
                     'data': []
                 }, status=201)
 
-            result_from_elastic_search = get_positional_index()
-            pos_index = result_from_elastic_search['_source']['positional_index']
+            document_ids = []
+            for search_query in search_queries:
 
-            print(pos_index, '=res')
+                result_from_elastic_search = get_positional_index()
+                pos_index = result_from_elastic_search['_source']['positional_index']
 
-            result = return_docs(pos_index, search_query)
+                result = return_docs(pos_index, search_query)
+                print(result, f'result for {search_query}')
+                document_ids.extend(list(result.keys()))
+            
+            # removes duplicates incase, the free query search has same document to show for multiple searches
+            document_ids = list(set(document_ids))
 
-            document_ids = list(result.keys())
             print(document_ids, '= document ids')
             if (len(document_ids) == 0):
-                return JsonResponse({
-                    'data': []
-                })
+                    return JsonResponse({
+                        'data': []
+                    })
             result_from_es_main = main.get_multiple_documents(document_ids)
-            print(result_from_es_main, '= multiple docs response')
 
             # use the search query to perform the phrase query search
             return JsonResponse({

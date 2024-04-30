@@ -150,7 +150,7 @@ def uploadHandler(request):
                             'file_name': url,
                             'file_loc': None,
                             'content': processedText,
-                            'type': url,
+                            'type': 'url',
                             'created_at': datetime.datetime.now().isoformat()
                         }
                     }

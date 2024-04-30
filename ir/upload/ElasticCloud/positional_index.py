@@ -10,7 +10,6 @@ index = 'positional_index'
 def get_positional_index():
     ''' Returns positional index record with id = 1'''
     res = client.get(index=index, id=1)
-    print(res, '= raw result from searching for index1')
     return res
 
 

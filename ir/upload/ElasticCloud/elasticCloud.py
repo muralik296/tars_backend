@@ -27,7 +27,8 @@ client = Elasticsearch(
 #         'documentid': {'type': 'text'},
 #         'file_loc': {'type': 'text'},
 #         'file_name': {'type': 'text'},
-#         'type': {'type': 'text'}
+#         'type': {'type': 'text'},
+#         # 'positional_index':{'type':'object','enabled':'false'}
 #     }
 # }
 
