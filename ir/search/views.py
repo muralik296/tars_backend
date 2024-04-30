@@ -9,7 +9,7 @@ import json
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError, ConnectionError, TransportError
 
-from upload.ElasticCloud.positional_index import get_positional_index
+from upload.ElasticCloud.positional_index import get_positional_index, check_document_exists
 
 from upload.ElasticCloud import main
 
@@ -26,16 +26,26 @@ def searchHandler(request):
             search_query = requestBody['query']
             search_query = search_query.lower()
             print(search_query, '= search query')
+            
+            # checking if positional index exists, if not then return an empty search result
+            if (check_document_exists() == False):
+                return JsonResponse({
+                    'data': []
+                }, status=201)
+
             result_from_elastic_search = get_positional_index()
             pos_index = result_from_elastic_search['_source']['positional_index']
-    
+
             print(pos_index, '=res')
 
             result = return_docs(pos_index, search_query)
 
             document_ids = list(result.keys())
             print(document_ids, '= document ids')
-
+            if (len(document_ids) == 0):
+                return JsonResponse({
+                    'data': []
+                })
             result_from_es_main = main.get_multiple_documents(document_ids)
             print(result_from_es_main, '= multiple docs response')
 

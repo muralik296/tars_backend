@@ -21,6 +21,7 @@ from .ElasticCloud import main
 from .ElasticCloud import positional_index
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError, ConnectionError, TransportError
+import json
 
 
 # upload endpoint
@@ -79,7 +80,8 @@ def uploadHandler(request):
                     elif ('wordprocessingml' in typeOfFile):
                         text = handlers.getTextFromWordDocument(absolute_path)
 
-                    elif (typeOfFile == 'html'):
+                    # html file handler
+                    elif (typeOfFile == 'html' or typeOfFile == 'htm'):
                         text = handlers.getTextFromHtmlFile(absolute_path)
 
                     else:
@@ -114,6 +116,79 @@ def uploadHandler(request):
 
                     print(isPositionalIndexExist)
 
+                    # checking to see if positional index exists
+                    if (isPositionalIndexExist == False):
+                        # if the positional index is not there, create one
+                        print('not exists')
+                        # create the positional index
+                        posting_list = createPostingList(
+                            processedText, documentid)
+                        print(posting_list, '= posting list')
+                        # save the positional index
+                        res = positional_index.insert_into_positional_index_index(
+                            posting_list)
+
+                        print(res, '= from elastic cloud')
+
+                    else:
+                        # if positional index exists we update it
+                        print('exists')
+                        oldPostingListResults = positional_index.get_positional_index()
+
+                        print(oldPostingListResults,
+                              '= raw results from elastic cloud')
+
+                        oldPostingList = oldPostingListResults['_source']['positional_index']
+                        print(oldPostingList, '= old list')
+                        # create new posting list from the existing posting list
+                        newPostingList = createPostingList(
+                            processedText, documentid, oldPostingList)
+
+                        print(newPostingList)
+
+                        doc = {
+                            'positional_index': newPostingList
+                        }
+
+                        # update the posting list
+                        res = positional_index.update_positional_index(doc)
+
+            # URL Handler
+            else:
+                request_body = json.loads(request.body)
+                print(request_body)
+                list_of_urls = request_body['urls']
+                print(list_of_urls)
+                urls_to_insert = []
+                for element in list_of_urls:
+                    url = element['url']
+                    documentid = element['urlId']
+                    text = handlers.getTextFromWebsite(url)
+                    processedText = processText(text)
+                    print(processedText)
+                    document = {
+                        'documentid': documentid,
+                        'file_name': url,
+                        'file_loc': None,
+                        'content': processedText,
+                        'type': url,
+                        'created_at': datetime.datetime.now().isoformat()
+                    }
+                    document_to_insert = {
+                        '_index': 'main',
+                        '_id': documentid,
+                        '_source': document
+                    }
+                    urls_to_insert.append(document_to_insert)
+                    #TODO :
+                    # res = main.bulk_insert(urls_to_insert)
+                    res = main.insert_into_main(document,documentid)
+                    print(res, '= from urls added')
+                    # now we need to update or create posting list
+                    # seeing if positional index already exists by fetching
+                    isPositionalIndexExist = positional_index.check_document_exists()
+
+                    print(isPositionalIndexExist)
 
                     # checking to see if positional index exists
                     if (isPositionalIndexExist == False):
@@ -138,7 +213,7 @@ def uploadHandler(request):
                               '= raw results from elastic cloud')
 
                         oldPostingList = oldPostingListResults['_source']['positional_index']
-                        print(oldPostingList,'= old list')
+                        print(oldPostingList, '= old list')
                         # create new posting list from the existing posting list
                         newPostingList = createPostingList(
                             processedText, documentid, oldPostingList)
@@ -152,22 +227,17 @@ def uploadHandler(request):
                         # update the posting list
                         res = positional_index.update_positional_index(doc)
 
-            # # URL Handler
-            # elif (request.POST['urls']):
-            #     # TO DO support for urls and scrape data
-            #     pass
-
             return JsonResponse({
                 'msg': 'success'
-            },status=201)
+            }, status=201)
     except NotFoundError as e:
         print("The document or index specified does not exist.")
         print(e, '= error')
         return JsonResponse({
             'msg': 'Not found'
-        },status=404)
+        }, status=404)
     except Exception as e:
         print(e, 'an error occured')
         return JsonResponse({
             'msg': 'An Error occured, please try again later'
-        },status=500)
+        }, status=500)

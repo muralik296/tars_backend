@@ -7,22 +7,22 @@ def processText(unProcessedText):
     ''' Returns processed text after removal of stop words and special characters '''
 
     # replaces new lines with space
-    resultText = unProcessedText.replace('\n', ' ')
+    clean_text = unProcessedText.replace('\n', ' ')
 
     # make all text lowercase => this is to keep it uniform even when user queries
-    resultText = resultText.lower()
+    clean_text = clean_text.lower()
 
     # remove all special characters from the string
-    resultText = re.sub(r'[^a-zA-Z0-9\s]', '', resultText)
+    clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', clean_text)
 
     # keeps only a single space between each subsring(word) in the main string
-    resultText = re.sub(r'\s+', ' ', resultText)
+    clean_text = re.sub(r'\s+', ' ', clean_text)
 
     # removes all trailing spaces
-    resultText = resultText.strip()
+    clean_text = clean_text.strip()
 
     # remove stop words
-    clean_text = remove_stop_words(resultText)
+    # clean_text = remove_stop_words(clean_text) # NO REMOVAL OF STOP WORDS
     return clean_text
 
 

@@ -18,6 +18,7 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = f'{path_to_dir}/secrets.json'
 
 
 # beautiful soup
+from urllib.request import urlopen
 
 # TXT file handler
 
@@ -85,12 +86,36 @@ def getTextFromImage(file):
 def getTextFromHtmlFile(file_path):
     ''' Returns text from html file  '''
     # Open the HTML file
-    
+
     # latin-1 is the default charset for html files
     with open(file_path, "r", encoding='latin-1') as f:
         html_content = f.read()
 
     soup = BeautifulSoup(html_content, features="html.parser")
+
+    # kill all script and style elements
+    for script in soup(["script", "style"]):
+        script.extract()    # rip it out
+
+    # get text
+    text = soup.get_text()
+
+    # break into lines and remove leading and trailing space on each
+    lines = (line.strip() for line in text.splitlines())
+    # break multi-headlines into a line each
+    chunks = (phrase.strip() for line in lines for phrase in line.split("  "))
+    # drop blank lines
+    text = '\n'.join(chunk for chunk in chunks if chunk)
+
+    return text
+
+
+# handler for urls
+def getTextFromWebsite(url):
+    ''' Returns text from visting a website using beautiful soup '''
+
+    html = urlopen(url).read()
+    soup = BeautifulSoup(html, features="html.parser")
 
     # kill all script and style elements
     for script in soup(["script", "style"]):

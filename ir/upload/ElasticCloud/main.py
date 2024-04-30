@@ -1,4 +1,5 @@
 from .elasticCloud import client
+from elasticsearch.helpers import bulk
 
 index = 'main'
 
@@ -22,4 +23,9 @@ def get_single_document_by_id(documentid):
     '''Returns single document with id = document id'''
     response = client.get(index=index,
                             id=documentid)
+    return response
+
+def bulk_insert(documents):
+    ''' Bulk insert documents into index '''
+    response = bulk(client,documents)
     return response
