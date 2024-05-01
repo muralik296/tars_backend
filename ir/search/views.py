@@ -46,15 +46,15 @@ def searchHandler(request):
                 result = return_docs(pos_index, search_query)
                 print(result, f'result for {search_query}')
                 document_ids.extend(list(result.keys()))
-            
+
             # removes duplicates incase, the free query search has same document to show for multiple searches
             document_ids = list(set(document_ids))
 
-            print(document_ids, '= document ids')
+            # print(document_ids, '= document ids')
             if (len(document_ids) == 0):
-                    return JsonResponse({
-                        'data': []
-                    })
+                return JsonResponse({
+                    'data': []
+                })
             result_from_es_main = main.get_multiple_documents(document_ids)
 
             # use the search query to perform the phrase query search
@@ -69,11 +69,8 @@ def searchHandler(request):
 
 
 def getDocumentById(request, documentId):
-    print(documentId, '=documentid')
     try:
         result = main.get_single_document_by_id(documentId)
-        print(result, '= result')
-        print(result['_source'])
         return JsonResponse({"data": result['_source']}, status=200)
 
     except NotFoundError as e:
@@ -91,15 +88,22 @@ def getDocumentById(request, documentId):
 
 @csrf_exempt
 def get_posting_list_for_phrase(request):
-    if (request.method == 'POST'):
-        requestBody = json.loads(request.body)
-        search_query = requestBody['query']
-        print(search_query, '= search query')
-        positional_index = positional_index.get_positional_index()
-        pos_index = positional_index['hits']['hits'][0]['_source']['positional_index']
-        print(pos_index, '=res')
+    try:
 
-        result = return_docs(pos_index, search_query)
+        if (request.method == 'POST'):
+            requestBody = json.loads(request.body)
+            search_query = requestBody['query']
+            print(search_query, '= search query')
+            positional_index = positional_index.get_positional_index()
+            pos_index = positional_index['hits']['hits'][0]['_source']['positional_index']
+            print(pos_index, '=res')
+
+            result = return_docs(pos_index, search_query)
+            return JsonResponse({
+                "data": [result]
+            })
+    except Exception as e:
+        print(e, '= error')
         return JsonResponse({
-            "data": [result]
-        })
+            'msg': 'An error occured'
+        }, status=500)

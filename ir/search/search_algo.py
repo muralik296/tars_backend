@@ -22,8 +22,9 @@ def return_docs(posting_list,phrase_query):
         document_positions[doc] = [posting_list[term][doc]
                                 for term in tokens_in_phrase if doc in posting_list[term]]
 
-    print("Documents and their term positions:", document_positions)
-
+    
+    print(document_positions,f'= document positions for {phrase_query}')
+    
     # checking if their positions are next to each other
     final_documents = {}
 

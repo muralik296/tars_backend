@@ -36,3 +36,16 @@ def merge_posting_lists(old_list, new_list):
         else:
             old_list[term] = new_docs
     return old_list
+
+
+def create_term_index_for_text(text):
+    index = {}
+    words = text.split()
+    for position, word in enumerate(words):
+        # only adding words no numbers
+        if (word.isalpha()):
+            if word not in index:
+                index[word] = [position]
+            else:
+                index[word].append(position)
+    return index

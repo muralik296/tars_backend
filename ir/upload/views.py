@@ -12,7 +12,7 @@ from .processor import processText
 from . import helpers
 
 # import the creating positional index
-from .createPostingsList import createPostingList, merge_posting_lists
+from . import utils
 
 
 # elastic cloud helpers
@@ -92,11 +92,11 @@ def uploadHandler(request):
                     # build a term index if not already there in memory
                     if (not current_term_index):
                         print('empty')
-                        current_term_index = createPostingList(
+                        current_term_index = utils.createPostingList(
                             processedText, documentid)
                     else:
                         print('there')
-                        current_term_index = createPostingList(
+                        current_term_index = utils.createPostingList(
                             processedText, documentid, current_term_index)
 
                     document = {
@@ -108,7 +108,8 @@ def uploadHandler(request):
                             'file_loc': relative_path,
                             'content': processedText,
                             'type': 'image' if typeOfFile in ['png', 'jpg', 'jpeg'] else typeOfFile,
-                            'created_at': datetime.datetime.now().isoformat()
+                            'created_at': datetime.datetime.now().isoformat(),
+                            'posting_list':utils.create_term_index_for_text(processedText)
                         }
                     }
                     documents.append(document)
@@ -133,11 +134,10 @@ def uploadHandler(request):
                     # build a term index if not already there in memory
                     if (not current_term_index):
                         print('empty')
-                        current_term_index = createPostingList(
+                        current_term_index = utils.createPostingList(
                             processedText, documentid)
                     else:
-                        print('there')
-                        current_term_index = createPostingList(
+                        current_term_index = utils.createPostingList(
                             processedText, documentid, current_term_index)
                         
                     document = {
@@ -149,7 +149,8 @@ def uploadHandler(request):
                             'file_loc': None,
                             'content': processedText,
                             'type': 'url',
-                            'created_at': datetime.datetime.now().isoformat()
+                            'created_at': datetime.datetime.now().isoformat(),
+                            'posting_list':utils.create_term_index_for_text(processedText)
                         }
                     }
 
@@ -180,7 +181,7 @@ def uploadHandler(request):
                 print(old_term_index, '= old term index')
 
                 # create new posting list from the existing posting list
-                new_term_index = merge_posting_lists(
+                new_term_index = utils.merge_posting_lists(
                     old_term_index, current_term_index)
 
                 print(new_term_index)

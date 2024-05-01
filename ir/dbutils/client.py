@@ -28,11 +28,11 @@ client = Elasticsearch(
 #         'file_loc': {'type': 'text'},
 #         'file_name': {'type': 'text'},
 #         'type': {'type': 'text'},
-#         # 'positional_index':{'type':'object','enabled':'false'}
+#         'posting_list':{'type':'object','enabled':'false'}
 #     }
 # }
 
-# index_name = 'positional_index'
+# index_name = 'main'
 
 
 # client.indices.create(index=index_name, body={'mappings': mapping})
