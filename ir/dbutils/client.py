@@ -1,8 +1,12 @@
+import os
 from elasticsearch import Elasticsearch
 
+ELASTIC_SEARCH_SERVER = os.getenv("ELASTIC_SEARCH_SERVER")
+ELASTIC_SEARCH_API_KEY = os.getenv("ELASTIC_SEARCH_API_KEY")
+
 client = Elasticsearch(
-    "https://67019a3983704628b6f2625991800058.us-central1.gcp.cloud.es.io:443",
-    api_key="RGhjbS1JNEJrd3BZN2ZlMmxCQy06bTZyZnhzbkdUVWFTSkJ0dDZEWlRvQQ=="
+    ELASTIC_SEARCH_SERVER,
+    api_key=ELASTIC_SEARCH_API_KEY
 )
 
 # # data = {
@@ -12,7 +16,7 @@ client = Elasticsearch(
 # #     'quote': 'Not all who wander are lost.'
 # # }
 
-# print(client.info(),'= info')
+print(client.info(),'= client info')
 
 # mapping = {
 #     'properties': {
