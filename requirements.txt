@@ -23,6 +23,7 @@ protobuf==4.25.3
 pyasn1==0.6.0
 pyasn1_modules==0.4.0
 pypdf==4.2.0
+python-dotenv==1.0.1
 python-magic==0.4.27
 regex==2024.4.16
 requests==2.31.0
