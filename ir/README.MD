@@ -16,6 +16,12 @@ Database: Elastic Search Cloud
 * Prerequisites
 * ex. MacOS, Windows 10, Node.js v21.4+, Node package manager (npm) , Python 3.7+, Make sure to have internet connection as it connects to elastic cloud
 
+
+### Make sure to have the following folder structure
+![alt text](image.png)
+
+
+
 ### Installing
 
 * Once you unzipped it, you should add the .env file in the same level as the .env-example.txt file which is at the top most parent directory
@@ -61,15 +67,20 @@ cd ir
 python manage.py runserver
 ```
 
+
+* Incase, you are facing an error while trying to install libmagic python library, follow the below steps, from your virtual environment
+```
+brew install libmagic
+```
+
 * The above should running your webserver at 'http://localhost:8000' and be able to accept requests
 
+
 ### Follow the below steps to setup the react frontend project and get started
-
-
 * Once you have the backend up and running successfully, in a new terminal window navigate to the IR_Project folder
 
 ```
-cd 
+cd /IR_Project
 ```
 
 * Once you are in the build folder, if you already have **serve** package installed, you can skip this step. the below will install serve
@@ -85,3 +96,19 @@ serve -s build
 ```
 
 * The above should start your frontend at 'http://localhost:3000' -> you can access this from your browser
+
+
+### Use the below commands incase you face any 'port already in use' issues:
+- to view and kill processes:
+
+```
+lsof -i:portnumber
+```
+
+- to view which processes are running
+
+```
+kill -9 pid
+```
+
+to ensure that the process on that port is killed forcefully
