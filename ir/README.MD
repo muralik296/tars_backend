@@ -31,10 +31,16 @@ Database: Elastic Search Cloud
 virtualenv -p python3 env
 ```
 
+* (optional) If the above doesn't create a virtual environment successfully, run the below command
+
+```
+python3 -m venv venv
+```
+
 * Once you have done that, run the following to activate it
 
 ```
-python ./env/bin/activate
+source ./env/bin/activate
 ```
 
 * Install the python dependencies 
@@ -60,10 +66,10 @@ python manage.py runserver
 ### Follow the below steps to setup the react frontend project and get started
 
 
-* Once you have the backend up and running successfully, in a new terminal window navigate to the react build folder
+* Once you have the backend up and running successfully, in a new terminal window navigate to the IR_Project folder
 
 ```
-cd build
+cd 
 ```
 
 * Once you are in the build folder, if you already have **serve** package installed, you can skip this step. the below will install serve
@@ -72,7 +78,7 @@ cd build
 npm install -g serve
 ```
 
-* After successfully installing serve, you can type the below command in the terminal from the build directory to serve the static files
+* After successfully installing serve, you can type the below command in the terminal from the IR_Project directory to serve the static files
 
 ```
 serve -s build 
