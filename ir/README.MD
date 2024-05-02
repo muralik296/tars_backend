@@ -1,17 +1,20 @@
-# TARS Search Engine Backend
+# TARS Search Engine
 
 Backend code for the TARS Project backend.
 
 ## Description
+* Tech Stack: 
+Backend: Django,Python
+Frontend: React.js
+Database: Elastic Search Cloud
 
-Written in Python and usage of Django framework. On running the webserver, you should have access to the API endpoints to the Django server
 
 ## Getting Started
 
 ### Dependencies
 
 * Prerequisites
-* ex. MacOS, Windows 10, Python 3.7+, Make sure to have internet connection as it connects to elastic cloud
+* ex. MacOS, Windows 10, Node.js v21.4+, Node package manager (npm) , Python 3.7+, Make sure to have internet connection as it connects to elastic cloud
 
 ### Installing
 
@@ -20,7 +23,7 @@ Written in Python and usage of Django framework. On running the webserver, you s
 * If you'd like to use your own elastic cloud cluster, then make sure to run the db_setup file inside the db_utils directory.
 
 
-### Follow the below steps to setup the project and get started
+### Follow the below steps to setup the backend project and get started
 
 * Create a virtual environment for your django application
 
@@ -40,8 +43,39 @@ python ./env/bin/activate
 pip install -r requirements.txt
 ```
 
-* Once successfully installed you should be able to run the below to get your server up and running (at default port and host 8000)
 
+* cd (navigate) over to the 'ir' project directory
+
+```
+cd ir
+```
+
+* Once successfully installed you should be able to run the below to get your server up and running (at default port and host 8000)
 ```
 python manage.py runserver
 ```
+
+* The above should running your webserver at 'http://localhost:8000' and be able to accept requests
+
+### Follow the below steps to setup the react frontend project and get started
+
+
+* Once you have the backend up and running successfully, in a new terminal window navigate to the react build folder
+
+```
+cd build
+```
+
+* Once you are in the build folder, if you already have **serve** package installed, you can skip this step. the below will install serve
+
+```
+npm install -g serve
+```
+
+* After successfully installing serve, you can type the below command in the terminal from the build directory to serve the static files
+
+```
+serve -s build 
+```
+
+* The above should start your frontend at 'http://localhost:3000' -> you can access this from your browser
